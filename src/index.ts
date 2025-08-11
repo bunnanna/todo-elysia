@@ -1,11 +1,12 @@
-import { Elysia } from "elysia";
-import AuthController from "./controllers/AuthController";
+import swagger from '@elysiajs/swagger';
+import Elysia from 'elysia';
+import AuthController from './controllers/AuthController';
 
-const app = new Elysia()
-	.get("/", () => "Hello Elysia")
-	.use(AuthController)
-	.listen(3000);
-
-console.log(
-	`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
+export const app = new Elysia()
+  .use(swagger())
+  .get('/', () => 'Hello Elysia')
+  .use(AuthController)
+  .onStart(({ server }) => {
+    console.log(`🦊 Elysia is running at ${server?.url}`);
+  })
+  .listen(3000);
