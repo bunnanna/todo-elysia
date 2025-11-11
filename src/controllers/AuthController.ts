@@ -19,6 +19,7 @@ const AuthController = new Elysia({
       secret: '123456',
     }),
   )
+  .model('authCookie', authCookieModel)
   .decorate('userRepository', new UserRepository(db))
   .post(
     '/sign-up',
@@ -45,9 +46,7 @@ const AuthController = new Elysia({
     },
     {
       body: createUserRequest,
-      cookie: t.Cookie({
-        auth: t.Optional(t.String()),
-      }),
+      cookie: 'authCookie',
     },
   )
   .get(
@@ -59,8 +58,11 @@ const AuthController = new Elysia({
       return { username, name, createdDatetime };
     },
     {
-      cookie: t.Cookie({
-        auth: t.String(),
+      cookie: 'authCookie',
+      response: t.Object({
+        username: t.String(),
+        name: t.String(),
+        createdDatetime: t.Number(),
       }),
     },
   );
