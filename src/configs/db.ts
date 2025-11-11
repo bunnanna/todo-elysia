@@ -1,8 +1,12 @@
 import Database from 'bun:sqlite';
+import Elysia from 'elysia';
 
-const db = new Database('', { strict: true });
+const dbPlugin = new Elysia({
+  name: 'db',
+}).decorate(() => {
+  const DB = new Database('', { strict: true });
 
-db.run(`
+  DB.run(`
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
@@ -11,5 +15,8 @@ CREATE TABLE user (
     createdDatetime INTEGER NOT NULL
 );
   `);
+  console.log('db created');
+  return { db: DB };
+});
 
-export default db;
+export default dbPlugin;

@@ -1,13 +1,9 @@
 import jwt from '@elysiajs/jwt';
 import Elysia, { t } from 'elysia';
-import db from '../configs/db';
+import { authCookieModel } from '../DTO/request/AuthCookie';
 import { createUserRequest } from '../DTO/request/CreateUserRequest';
-import { UserModel } from '../models/UserModel';
-import { UserRepository } from '../repositories/UserRepository';
-
-const authCookieModel = t.Cookie({
-  auth: t.Optional(t.String()),
-});
+import { type CreateUserModel } from '../models/UserModel';
+import { userRepository } from '../repositories/UserRepository';
 
 const AuthController = new Elysia({
   name: 'AuthController',
@@ -20,11 +16,11 @@ const AuthController = new Elysia({
     }),
   )
   .model('authCookie', authCookieModel)
-  .decorate('userRepository', new UserRepository(db))
+  .use(userRepository)
   .post(
     '/sign-up',
     ({ userRepository, body: { username, password } }) => {
-      const createBody: Omit<UserModel, 'id'> = {
+      const createBody: CreateUserModel = {
         username,
         password: Bun.password.hashSync(password),
         name: username,

@@ -1,5 +1,17 @@
 import Database from 'bun:sqlite';
+import Elysia from 'elysia';
+import dbPlugin from '../configs/db';
 import { UserModel } from '../models/UserModel';
+
+export const userRepository = new Elysia({
+  name: 'userRepository',
+})
+  .use(dbPlugin)
+  .decorate(({ db }) => {
+    return {
+      userRepository: new UserRepository(db),
+    };
+  });
 
 export class UserRepository {
   constructor(private _db: Database) {}

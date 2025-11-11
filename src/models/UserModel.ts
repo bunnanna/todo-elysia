@@ -9,3 +9,4 @@ export const userModel = t.Object({
 });
 
 export type UserModel = typeof userModel.static;
+export type CreateUserModel = Omit<UserModel, 'id'>;
