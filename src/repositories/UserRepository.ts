@@ -3,7 +3,7 @@ import Elysia from 'elysia';
 import dbPlugin from '../configs/db';
 import { UserModel } from '../models/UserModel';
 
-export const userRepository = new Elysia({
+export const userRepositoryPlugin = new Elysia({
   name: 'userRepository',
 })
   .use(dbPlugin)
@@ -34,7 +34,7 @@ export class UserRepository {
   `,
       )
       .get({ username });
-    if (!user) throw new Error('Not found');
+    if (!user) return null;
     return user as Pick<UserModel, 'id' | 'password'>;
   };
 
@@ -46,7 +46,7 @@ export class UserRepository {
   `,
       )
       .get({ id });
-    if (!user) throw new Error('Not found');
+    if (!user) return null;
     return user as UserModel;
   };
 }

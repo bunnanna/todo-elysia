@@ -1,32 +1,25 @@
-import jwt from '@elysiajs/jwt';
 import Elysia, { t } from 'elysia';
-import { authCookieModel } from '../DTO/request/AuthCookie';
 import { createUserRequest } from '../DTO/request/CreateUserRequest';
 import { type CreateUserModel } from '../models/UserModel';
-import { userRepository } from '../repositories/UserRepository';
+import { JWTServicePlugin } from '../services/JWTServices';
+import { userServicePlugin } from '../services/UserService';
 
 const AuthController = new Elysia({
   name: 'AuthController',
   prefix: 'user',
 })
-  .use(
-    jwt({
-      name: 'jwt',
-      secret: '123456',
-    }),
-  )
-  .model('authCookie', authCookieModel)
-  .use(userRepository)
+  .use(JWTServicePlugin)
+  .use(userServicePlugin)
   .post(
     '/sign-up',
-    ({ userRepository, body: { username, password } }) => {
+    ({ createUser, body: { username, password } }) => {
       const createBody: CreateUserModel = {
         username,
         password: Bun.password.hashSync(password),
         name: username,
         createdDatetime: Date.now(),
       };
-      return userRepository.create(createBody);
+      return createUser(createBody);
     },
     {
       body: createUserRequest,
@@ -34,11 +27,9 @@ const AuthController = new Elysia({
   )
   .post(
     '/login',
-    async ({ jwt, userRepository, body: { username, password }, cookie: { auth } }) => {
-      const user = userRepository.getByUsername(username);
-      if (!Bun.password.verifySync(password, user.password)) throw new Error('Invalid');
-      auth.value = await jwt.sign({ id: `${user.id}` });
-      return auth.value;
+    async ({ login, body: { username, password }, cookie: { token } }) => {
+      token.value = await login({ username, password });
+      return token.value;
     },
     {
       body: createUserRequest,
@@ -47,14 +38,11 @@ const AuthController = new Elysia({
   )
   .get(
     '/',
-    async ({ jwt, userRepository, cookie: { auth } }) => {
-      const unsign = await jwt.verify(auth.value);
-      if (!unsign) throw new Error('Fbb');
-      const { username, name, createdDatetime } = userRepository.getById(unsign.id as string);
-      return { username, name, createdDatetime };
+    async ({ getMyData, auth }) => {
+      return getMyData(auth.id);
     },
     {
-      cookie: 'authCookie',
+      isAuth: true,
       response: t.Object({
         username: t.String(),
         name: t.String(),
