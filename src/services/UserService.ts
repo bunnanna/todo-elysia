@@ -1,4 +1,5 @@
 import Elysia from 'elysia';
+import type { CreateUserRequest } from '../DTO/request/CreateUserRequest';
 import type { LoginModel } from '../models/LoginModel';
 import type { CreateUserModel } from '../models/UserModel';
 import { userRepositoryPlugin, type UserRepository } from '../repositories/UserRepository';
@@ -14,7 +15,13 @@ export const userServicePlugin = new Elysia()
 export class UserService {
   constructor(private userRepository: UserRepository, private jwtClient: JWTService) {}
 
-  createUser = async (body: CreateUserModel) => {
+  createUser = async ({ username, password }: CreateUserRequest) => {
+    const body: CreateUserModel = {
+      username,
+      password: Bun.password.hashSync(password),
+      name: username,
+      createdDatetime: Date.now(),
+    };
     if (this.userRepository.getByUsername(body.username)) throw new Error('dup user');
     this.userRepository.create(body);
     return body;
@@ -25,12 +32,5 @@ export class UserService {
     if (!user) throw new Error('Invalid');
     if (!Bun.password.verifySync(password, user.password)) throw new Error('Invalid');
     return this.jwtClient.sign({ id: `${user.id}` });
-  };
-
-  getMyData = async (id: string) => {
-    const user = this.userRepository.getById(id);
-    if (!user) throw new Error('user not found');
-    const { username, name, createdDatetime } = user;
-    return { username, name, createdDatetime };
   };
 }

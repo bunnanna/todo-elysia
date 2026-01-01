@@ -1,27 +1,20 @@
 import Elysia, { t } from 'elysia';
 import { createUserRequest } from '../DTO/request/CreateUserRequest';
-import { type CreateUserModel } from '../models/UserModel';
+import { AuthService } from '../services/AuthService';
 import { CookieServicePlugin } from '../services/CookieService';
-import { JWTServicePlugin } from '../services/JWTServices';
 import { userServicePlugin } from '../services/UserService';
 
 const AuthController = new Elysia({
   name: 'AuthController',
   prefix: 'user',
 })
-  .use(JWTServicePlugin)
+  .use(AuthService)
   .use(CookieServicePlugin)
   .use(userServicePlugin)
   .post(
     '/sign-up',
     ({ userService, body: { username, password } }) => {
-      const createBody: CreateUserModel = {
-        username,
-        password: Bun.password.hashSync(password),
-        name: username,
-        createdDatetime: Date.now(),
-      };
-      return userService.createUser(createBody);
+      return userService.createUser({ username, password });
     },
     {
       body: createUserRequest,
@@ -42,11 +35,11 @@ const AuthController = new Elysia({
   )
   .get(
     '/',
-    async ({ userService, auth }) => {
-      return userService.getMyData(auth.id);
+    async ({ authUser }) => {
+      return authUser;
     },
     {
-      isAuth: true,
+      authUser: true,
       response: t.Object({
         username: t.String(),
         name: t.String(),
