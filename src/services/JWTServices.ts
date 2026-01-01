@@ -18,3 +18,5 @@ export const JWTServicePlugin = new Elysia()
       return { auth };
     },
   });
+
+export type JWTService = (typeof JWTServicePlugin)['decorator']['jwt'];

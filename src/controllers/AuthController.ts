@@ -12,14 +12,14 @@ const AuthController = new Elysia({
   .use(userServicePlugin)
   .post(
     '/sign-up',
-    ({ createUser, body: { username, password } }) => {
+    ({ userService, body: { username, password } }) => {
       const createBody: CreateUserModel = {
         username,
         password: Bun.password.hashSync(password),
         name: username,
         createdDatetime: Date.now(),
       };
-      return createUser(createBody);
+      return userService.createUser(createBody);
     },
     {
       body: createUserRequest,
@@ -27,8 +27,8 @@ const AuthController = new Elysia({
   )
   .post(
     '/login',
-    async ({ login, body: { username, password }, cookie: { token } }) => {
-      token.value = await login({ username, password });
+    async ({ userService, body: { username, password }, cookie: { token } }) => {
+      token.value = await userService.login({ username, password });
       return token.value;
     },
     {
@@ -38,8 +38,8 @@ const AuthController = new Elysia({
   )
   .get(
     '/',
-    async ({ getMyData, auth }) => {
-      return getMyData(auth.id);
+    async ({ userService, auth }) => {
+      return userService.getMyData(auth.id);
     },
     {
       isAuth: true,
