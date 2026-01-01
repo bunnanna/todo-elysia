@@ -1,5 +1,6 @@
-import Elysia, { t } from 'elysia';
+import Elysia from 'elysia';
 import { createUserRequest } from '../DTO/request/CreateUserRequest';
+import { userResponse } from '../DTO/response/UserResponse';
 import { AuthService } from '../services/AuthService';
 import { CookieServicePlugin } from '../services/CookieService';
 import { userServicePlugin } from '../services/UserService';
@@ -28,9 +29,8 @@ const AuthController = new Elysia({
       return token;
     },
     {
-      body: createUserRequest,
-      cookie: 'authCookie',
       setCookie: true,
+      body: createUserRequest,
     },
   )
   .get(
@@ -40,11 +40,7 @@ const AuthController = new Elysia({
     },
     {
       authUser: true,
-      response: t.Object({
-        username: t.String(),
-        name: t.String(),
-        createdDatetime: t.Number(),
-      }),
+      response: userResponse,
     },
   );
 export default AuthController;
