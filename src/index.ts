@@ -9,4 +9,4 @@ export const app = new Elysia()
   .onStart(({ server }) => {
     console.log(`🦊 Elysia is running at ${server?.url}`);
   })
-  .listen(3000);
+  .listen(8080);

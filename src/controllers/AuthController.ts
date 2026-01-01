@@ -1,6 +1,7 @@
 import Elysia, { t } from 'elysia';
 import { createUserRequest } from '../DTO/request/CreateUserRequest';
 import { type CreateUserModel } from '../models/UserModel';
+import { CookieServicePlugin } from '../services/CookieService';
 import { JWTServicePlugin } from '../services/JWTServices';
 import { userServicePlugin } from '../services/UserService';
 
@@ -9,6 +10,7 @@ const AuthController = new Elysia({
   prefix: 'user',
 })
   .use(JWTServicePlugin)
+  .use(CookieServicePlugin)
   .use(userServicePlugin)
   .post(
     '/sign-up',
@@ -27,13 +29,15 @@ const AuthController = new Elysia({
   )
   .post(
     '/login',
-    async ({ userService, body: { username, password }, cookie: { token } }) => {
-      token.value = await userService.login({ username, password });
-      return token.value;
+    async ({ setAuthCookie, userService, body: { username, password } }) => {
+      const token = await userService.login({ username, password });
+      setAuthCookie(token);
+      return token;
     },
     {
       body: createUserRequest,
       cookie: 'authCookie',
+      setCookie: true,
     },
   )
   .get(
