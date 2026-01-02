@@ -1,7 +1,7 @@
 import Database from 'bun:sqlite';
 import Elysia from 'elysia';
 import dbPlugin from '../configs/db';
-import { UserModel } from '../models/UserModel';
+import { UserModel, type CreateUserModel } from '../models/UserModel';
 
 export const userRepositoryPlugin = new Elysia({
   name: 'userRepository',
@@ -16,7 +16,7 @@ export const userRepositoryPlugin = new Elysia({
 export class UserRepository {
   constructor(private _db: Database) {}
 
-  create = (userModel: Omit<UserModel, 'id'>) => {
+  create = (userModel: CreateUserModel) => {
     return this._db
       .query(
         `
