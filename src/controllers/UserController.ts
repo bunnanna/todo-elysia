@@ -9,8 +9,8 @@ export const UserController = new Elysia({ name: 'UserController', prefix: 'user
   .use(userServicePlugin)
   .post(
     '/sign-up',
-    ({ userService, body: { username, password } }) => {
-      return userService.createUser({ username, password });
+    ({ userService, body }) => {
+      return userService.createUser(body);
     },
     {
       body: createUserRequest,
