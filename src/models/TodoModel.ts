@@ -14,4 +14,4 @@ type UserInTodo = Pick<UserModel, 'id' | 'username'>;
 
 export type TodoModel = typeof todoModel.static;
 export type TodoModelWithUser = Omit<TodoModel, 'user_id'> & { user: UserInTodo };
-export type CreateTodoModel = Pick<TodoModel, 'title' | 'description' | 'user_id'>;
+export type CreateTodoModel = Omit<TodoModel, 'id'>;

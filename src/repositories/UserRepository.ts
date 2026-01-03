@@ -7,11 +7,9 @@ export const userRepositoryPlugin = new Elysia({
   name: 'userRepository',
 })
   .use(dbPlugin)
-  .decorate(({ db }) => {
-    return {
-      userRepository: new UserRepository(db),
-    };
-  });
+  .decorate(({ db }) => ({
+    userRepository: new UserRepository(db),
+  }));
 
 export class UserRepository {
   constructor(private _db: Database) {}
