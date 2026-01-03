@@ -1,3 +1,8 @@
-import type { TodoModel } from '../../models/TodoModel';
+import { t } from 'elysia';
 
-export type CreateTodoRequest = Pick<TodoModel, 'title' | 'description'>;
+export const createTodoRequest = t.Object({
+  title: t.String({ minLength: 1 }),
+  description: t.Optional(t.String()),
+});
+
+export type CreateTodoRequest = typeof createTodoRequest.static;

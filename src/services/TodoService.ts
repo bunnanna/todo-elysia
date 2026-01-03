@@ -1,11 +1,17 @@
+import Elysia from 'elysia';
+import type { CreateTodoRequest } from '../DTO/request/CreateTodoRequest';
 import type { CreateTodoModel } from '../models/TodoModel';
 import type { UserModel } from '../models/UserModel';
-import type { TodoRepository } from '../repositories/TodoRepository';
+import { todoRepositoryPlugin, type TodoRepository } from '../repositories/TodoRepository';
+
+export const todoServicePlugin = new Elysia({ name: 'todoServicePlugin' })
+  .use(todoRepositoryPlugin)
+  .decorate(({ todoRepository }) => ({ todoService: new TodoService(todoRepository) }));
 
 export class TodoService {
   constructor(private todoRepository: TodoRepository) {}
 
-  createTodo = async (body: CreateTodoModel, authUser: UserModel) => {
+  createTodo = async (body: CreateTodoRequest, authUser: UserModel) => {
     const todoModel: CreateTodoModel = {
       title: body.title,
       description: body.description,
@@ -13,7 +19,7 @@ export class TodoService {
       createdDatetime: Date.now(),
       user_id: authUser.id,
     };
-    const id = await this.todoRepository.create(todoModel);
+    const id = (await this.todoRepository.create(todoModel)) as number;
     return {
       ...todoModel,
       id,

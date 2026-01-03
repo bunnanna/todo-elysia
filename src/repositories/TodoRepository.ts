@@ -31,18 +31,18 @@ export class TodoRepository {
     const todo = this.db
       .query<TodoQueryResult, { id: number }>(
         `
-      SELECT
-        id,
-        title,
-        description,
-        completed,
-        createdDatetime,
-        u.id AS user_id,
-        u.username as username,
-      FROM todo t
-      WHERE :id = id
-      JOIN user u
-      ON t.user_id = u.id
+        SELECT
+          t.id,
+          t.title,
+          t.description,
+          t.completed,
+          t.createdDatetime,
+          u.id AS user_id,
+          u.username AS username
+        FROM todo t
+        JOIN user u
+          ON t.user_id = u.id
+        WHERE t.id = :id;
       `,
       )
       .get({ id });

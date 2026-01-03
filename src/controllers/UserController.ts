@@ -14,6 +14,7 @@ export const UserController = new Elysia({ name: 'UserController', prefix: 'user
     },
     {
       body: createUserRequest,
+      response: userResponse,
     },
   )
   .get(
